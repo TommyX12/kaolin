@@ -171,9 +171,11 @@ class NeuralMeshRenderer(DifferentiableRenderer):
             # TODO: Add comments here
             self.viewing_angle = viewing_angle
             # TODO: use kal.deg2rad instead
-            self.eye = torch.FloatTensor([0, 0, -(1.\
-                / torch.tan(kal.mathutils.pi * self.viewing_angle / 180)\
-                + 1)]).to(self.device)
+            self.eye = torch.FloatTensor([
+                0, 0,
+                -(1. / torch.tan(kal.mathutils.pi * self.viewing_angle / 180)
+                  + 1)
+            ]).to(self.device)
             # Direction in which the camera's optical axis is facing
             self.camera_direction = torch.FloatTensor([0, 0, 1]).to(
                 self.device)
@@ -360,11 +362,11 @@ class NeuralMeshRenderer(DifferentiableRenderer):
         # projection function across all modes. Helps avoid redundancy.
         if self.camera_mode == 'look_at':
             vertices = self.perspective_distortion(vertices,
-                                                angle=self.viewing_angle)
+                                                   angle=self.viewing_angle)
 
         elif self.camera_mode == 'look':
             vertices = self.perspective_distortion(vertices,
-                                                angle=self.viewing_angle)
+                                                   angle=self.viewing_angle)
 
         elif self.camera_mode == 'projection':
             vertices = perspective_projection(vertices, K, rmat, tvec)
@@ -389,27 +391,35 @@ class NeuralMeshRenderer(DifferentiableRenderer):
 
         # If mode is unspecified, render rgb, depth, and alpha channels
         if mode is None:
-            out = kal.graphics.nmr.rasterizer.rasterize_rgbad(faces, textures,
-                                                   self.image_size, self.anti_aliasing, self.near, self.far,
-                                                   self.rasterizer_eps, self.bg_color)
+            out = kal.graphics.nmr.rasterizer.rasterize_rgbad(
+                faces, textures,
+                self.image_size, self.anti_aliasing, self.near, self.far,
+                self.rasterizer_eps, self.bg_color
+            )
             return out['rgb'], out['depth'], out['alpha']
 
         # Render RGB channels only
         elif mode == 'rgb':
-            images = kal.graphics.nmr.rasterize(faces, textures,
-                                                self.image_size, self.anti_aliasing, self.near, self.far,
-                                                self.rasterizer_eps, self.background_color)
+            images = kal.graphics.nmr.rasterize(
+                faces, textures,
+                self.image_size, self.anti_aliasing, self.near, self.far,
+                self.rasterizer_eps, self.background_color
+            )
             return images
 
         # Render depth image
         elif mode == 'depth':
-            images = kal.graphics.nmr.rasterize_silhouettes(faces,
-                                                            self.image_size, self.anti_aliasing)
+            images = kal.graphics.nmr.rasterize_silhouettes(
+                faces,
+                self.image_size, self.anti_aliasing
+            )
 
         # Render only a silhouette, without RGB colors
         elif mode == 'silhouette':
-            depth = kal.graphics.nmr.rasterize_depth(faces,
-                                                     self.image_size, self.anti_aliasing)
+            depth = kal.graphics.nmr.rasterize_depth(
+                faces,
+                self.image_size, self.anti_aliasing
+            )
             return depth
 
         else:
@@ -536,16 +546,16 @@ if __name__ == '__main__':
     vertices = mesh.vertices
     faces = mesh.faces.long()
     face_textures = (faces).clone()
-    
-    vertices = vertices[None, :, :].cuda()  
+
+    vertices = vertices[None, :, :].cuda()
     faces = faces[None, :, :].cuda()
     face_textures[None, :, :].cuda()
 
     vertices_max = vertices.max()
     vertices_min = vertices.min()
-    vertices_middle = (vertices_max + vertices_min)/2.
+    vertices_middle = (vertices_max + vertices_min) / 2.
     vertices = vertices - vertices_middle
-    
+
     coef = 5
     vertices = vertices * coef
 
